@@ -145,6 +145,14 @@ svg text{fill:var(--ink);font-family:inherit}svg .ax{fill:var(--ink-2);font-size
 .ged select.sel{cursor:pointer;font-weight:700;border-radius:999px;padding:2px 8px;border:1px solid var(--line)!important;background:var(--surface-2)!important}
 .ged select.st-진행중{background:var(--info-soft)!important;color:var(--info);border-color:var(--info)!important}
 .ged select.st-RTV{background:var(--soon-soft)!important;color:var(--soon);border-color:var(--soon)!important}
+.ged td[data-k=det],.ged td[data-k=resp]{width:300px;min-width:300px!important;max-width:300px!important;white-space:normal;word-break:break-word;line-height:1.35}
+.ged td[data-k=desc]{width:210px;min-width:210px!important;max-width:210px!important;white-space:normal;word-break:break-word}
+.ged td[data-k=ret]{width:96px;min-width:96px!important;max-width:96px!important;white-space:nowrap}
+.ged td[data-k=sup]{width:190px;min-width:190px!important;max-width:190px!important;white-space:normal}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}.ged select.st-신규{background:var(--ok-soft)!important;color:var(--ok);border-color:var(--ok)!important}
+#impbg{position:fixed;inset:0;background:rgba(10,20,30,.55);z-index:90;display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px;overflow:auto}
+.impd{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);width:min(980px,100%);padding:18px}
+.imph{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:16px}.impb{display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 
@@ -166,8 +174,8 @@ const pc=x=>(x*100).toFixed(1)+'%';
 const S={log:SEED.log||[],ed:true,edited:false,snaps:SEED.snaps,map:SEED.map,fx:SEED.fx,brand:SEED.brand,cur:SEED.snaps[SEED.snaps.length-1].id,tab:'dash',
  theme:'light',
  lf:{q:'',buyer:'',st:'',insp:'',age:'',bfm:false,sort:'no',dir:1,snap:''},
- rp:{sec:{kp:1,s1:1,s2:1,s3:1,s4:1,s5:1,tr:0,ls:1},buyer:'',st:{'진행중':1,'RTV':1},insp:{'수검':1,'검판서':1},age:{0:1,1:1,2:1,3:1},
-  cols:{no:1,ncr:1,dt:1,age:1,sup:1,pn:1,desc:1,qty:0,usd:1,buyer:1,insp:1,st:1,det:1,resp:0,po:0,mpn:0,biz:0,ret:0}}};
+ rp:{sec:{kp:1,s1:1,s2:1,s3:1,s4:1,s5:1,tr:0,ls:1},buyer:'',st:{'신규':1,'진행중':1,'RTV':1},insp:{'수검':1,'검판서':1},age:{0:1,1:1,2:1,3:1},
+  cols:{lot:0,no:1,ncr:1,dt:1,age:1,sup:1,pn:1,desc:1,qty:0,usd:1,buyer:1,insp:1,st:1,det:1,resp:0,po:0,mpn:0,biz:0,ret:0}}};
 try{const t=localStorage.getItem('ncr.theme');if(t)S.theme=t}catch(e){}
 document.documentElement.dataset.theme=S.theme;
 
@@ -274,7 +282,7 @@ function tSup(M,opt){opt=opt||{};const rows=opt.rows||M.sup,off=opt.off||0;const
 
 /* 목록 */
 function listSnap(){const sn=snap(S.cur);if(sn.kind==='lines')return sn;const a=sorted().filter(s=>s.kind==='lines');return a[a.length-1]}
-const COLS=[['no','No.',x=>x.no,'c'],['ncr','NCR No.',x=>x.ncr],['dt','발행일',x=>x.dt],['age','경과(일)',x=>x._age,'n'],['sup','협력사',x=>x.sup],['po','PO No',x=>x.po],['pn','Huneed PN',x=>x.pn],['mpn','MPN',x=>x.mpn],['desc','Description',x=>x.desc],['qty','수량',x=>x.qty,'n'],['usd','금액(USD)',x=>x.usd,'n'],['biz','사업구분',x=>x.biz],['buyer','담당(현재)',x=>x._b],['insp','검사유형',x=>x.insp],['st','처리상태',x=>x.st],['det','NCR 내용',x=>x.det],['resp','협력사 회신',x=>x.resp],['ret','반송일',x=>x.ret||'']];
+const COLS=[['no','No.',x=>x.no,'c'],['ncr','NCR No.',x=>x.ncr],['dt','발행일',x=>x.dt],['age','경과(일)',x=>x._age,'n'],['sup','협력사',x=>x.sup],['po','PO No',x=>x.po],['pn','Huneed PN',x=>x.pn],['mpn','MPN',x=>x.mpn],['desc','Description',x=>x.desc],['qty','수량',x=>x.qty,'n'],['lot','Lot 크기',x=>x.lot==null?'':x.lot,'n'],['usd','금액(USD)',x=>x.usd,'n'],['biz','사업구분',x=>x.biz],['buyer','담당(현재)',x=>x._b],['insp','검사유형',x=>x.insp],['st','처리상태',x=>x.st],['det','NCR 내용',x=>x.det],['resp','협력사 회신',x=>x.resp],['ret','반송일',x=>x.ret||'']];
 function listRows(sn,f){let ls=sn.lines.map(l=>({...l,_o:l,_b:mb(l),_age:ageOf(l,sn.asof)}));
  if(!f.bfm)ls=ls.filter(l=>!l.bfm);
  if(f.q){const q=f.q.toLowerCase();ls=ls.filter(l=>[l.ncr,l.sup,l.po,l.pn,l.mpn,l.desc,l.det,l.resp,l.biz].join(' ').toLowerCase().includes(q))}
@@ -333,24 +341,25 @@ const ME={v:''};try{ME.v=localStorage.getItem('ncr.me')||''}catch(e){}
 const me=()=>ME.v.trim()||'익명';
 function logEdit(sn,o,fl,a,b){S.log.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,5),t:Date.now(),by:me(),ncr:o.ncr,sup:o.sup,pn:o.pn||'',fl,a:a==null?'':String(a),b:b==null?'':String(b),asof:sn.asof});if(S.log.length>3000)S.log.splice(0,S.log.length-3000);S.edited=true}
 function parseEd(k,v){v=v.trim();
- if(k==='qty'||k==='usd'){const x=+v.replace(/[,$ ]/g,'');return v===''||isNaN(x)?{err:'숫자를 입력하세요'}:{v:x}}
+ if(k==='lot'&&v==='')return{v:''};
+ if(k==='qty'||k==='usd'||k==='lot'){const x=+v.replace(/[,$ ]/g,'');return v===''||isNaN(x)?{err:'숫자를 입력하세요'}:{v:x}}
  if(k==='dt'||k==='ret'){if(v===''&&k==='ret')return{v:''};return /^\d{4}-\d{2}-\d{2}$/.test(v)&&!isNaN(Date.parse(v))?{v}:{err:'날짜는 YYYY-MM-DD 형식으로 입력하세요'}}
  if(k==='no'){const x=+v;return v!==''&&!isNaN(x)?{v:x}:{v}}
  if(k==='ncr'&&v==='')return{err:'NCR No.를 입력하세요'};
  if(k==='sup'&&v==='')return{err:'협력사를 입력하세요'};
  return{v}}
-const SELV={st:['진행중','RTV'],insp:['수검','검판서']};
+const SELV={st:['신규','진행중','RTV'],insp:['수검','검판서']};
 function vList(p,sn0){const sn=listSnap();if(!sn){p.innerHTML='<div class="warn">ⓘ 목록(라인) 데이터가 없습니다. 규칙·설정 탭에서 Open Non-conformance List를 올려주세요.</div>';return}
  const f=S.lf,ed=!VIEW&&S.ed;const buyers=[...new Set(sn.lines.map(mb))].sort((a,b)=>a.localeCompare(b,'ko'));
  const synced=sn0.id===sn.id;
  p.innerHTML=`${synced?'':`<div class="warn">ⓘ <span>선택한 기준일(${sn0.asof})은 요약 데이터라 라인 목록이 없습니다. 가장 최근 라인 목록(${sn.asof})을 보여줍니다. 이 목록을 고치면 ${sn.asof} 기준일의 대시보드·출력용에 반영됩니다. ${VIEW?'':'새 기준일로 이어서 관리하려면 아래 "새 기준일로 복사"를 사용하세요.'}</span></div>`}
  <div class="bar"><input type="search" id="lq" placeholder="협력사·NCR·P/N·내용 검색" value="${esc(f.q)}" style="flex:1 1 220px;max-width:340px">
  <select id="lb"><option value="">담당자 전체</option>${buyers.map(b=>`<option ${f.buyer===b?'selected':''}>${esc(b)}</option>`).join('')}</select>
- <select id="ls"><option value="">처리상태 전체</option><option ${f.st==='진행중'?'selected':''}>진행중</option><option ${f.st==='RTV'?'selected':''}>RTV</option></select>
+ <select id="ls"><option value="">처리상태 전체</option><option ${f.st==='신규'?'selected':''}>신규</option><option ${f.st==='진행중'?'selected':''}>진행중</option><option ${f.st==='RTV'?'selected':''}>RTV</option></select>
  <select id="li"><option value="">검사유형 전체</option><option value="수검" ${f.insp==='수검'?'selected':''}>수입 검사(수검)</option><option value="검판서" ${f.insp==='검판서'?'selected':''}>검사 판정(검판서)</option></select>
  <select id="la"><option value="">경과 전체</option>${BK.map((b,i)=>`<option value="${i}" ${f.age===String(i)?'selected':''}>${b}</option>`).join('')}</select>
  <label class="note"><input type="checkbox" id="lbfm" ${f.bfm?'checked':''}> BFM(금액 0) 포함</label><span class="sp"></span><span class="note" id="lcnt"></span></div>
- ${VIEW?'':`<div class="bar edbar"><label class="cc"><input type="checkbox" id="ledit" ${ed?'checked':''}> 편집 모드</label>
+ ${VIEW?'':`<div class="bar edbar"><label class="cc"><input type="checkbox" id="ledit" ${ed?'checked':''}> 편집 모드</label><button class="btn pri" id="limp">엑셀 가져오기</button>
  ${ed?'<button class="btn pri" id="ladd">+ 행 추가</button>':''}<span class="note">${ed?'셀을 눌러 바로 고치면 대시보드·출력용·엑셀에 즉시 반영되고, 변경 내용은 대시보드 "담당자별 업데이트 현황"에 기록됩니다.':'편집 모드를 켜면 모든 항목을 직접 고칠 수 있습니다.'}</span><span class="sp"></span>
  <input type="date" id="lcd" value=""> <button class="btn" id="lcp" title="지금 목록을 복사해 새 기준일로 만듭니다 (직전 기준일에 건별 목록이 있으면 신규·완료가 산출됩니다)">새 기준일로 복사</button></div>`}
  <div class="tw"><table class="g${ed?' ged':''}" id="lt"></table></div>
@@ -361,7 +370,7 @@ function vList(p,sn0){const sn=listSnap();if(!sn){p.innerHTML='<div class="warn"
    if(SELV[k])return `<td class="${cls}"><select data-k="${k}" class="sel ${k}-${esc(full)}">${SELV[k].concat(SELV[k].includes(full)||!full?[]:[full]).map(v=>`<option ${v===full?'selected':''}>${esc(v)}</option>`).join('')}</select></td>`;
    return `<td class="${cls}" data-k="${k}" contenteditable="true" spellcheck="false">${esc(k==='usd'?m2(full):full)}</td>`}
   let v=cellTxt(c,l,c[0]==='det'||c[0]==='resp'?44:40);
-  if(k==='st')v=`<span class="chip ${full==='RTV'?'soon':'info'}">${esc(v)}</span>`;else if(k==='age')v=full>90?`<span class="chip late">${full}</span>`:full;else v=esc(v);
+  if(k==='st')v=`<span class="chip ${full==='RTV'?'soon':full==='신규'?'ok':'info'}">${esc(v)}</span>`;else if(k==='age')v=full>90?`<span class="chip late">${full}</span>`:full;else v=esc(v);
   return `<td class="${c[3]||''}" ${(k==='det'||k==='resp'||k==='desc')&&full?`data-tip="${esc(String(full).slice(0,400))}"`:''} ${k==='age'?'data-k="age"':''}>${v}</td>`};
  const info=()=>{const tot=rows.reduce((t,l)=>t+l.usd,0);$('#lcnt').textContent=`${n0(rows.length)}건 · ${usd(tot)}`};
  const draw=()=>{rows=sortRows(listRows(sn,f),f.sort,f.dir);info();
@@ -370,7 +379,7 @@ function vList(p,sn0){const sn=listSnap();if(!sn){p.innerHTML='<div class="warn"
  const bind=(id,k,fn)=>$(id).addEventListener(k==='q'?'input':'change',e=>{f[k]=fn?fn(e.target):e.target.value;draw()});
  bind('#lq','q');bind('#lb','buyer');bind('#ls','st');bind('#li','insp');bind('#la','age');bind('#lbfm','bfm',t=>t.checked);draw();
  if(VIEW)return;
- $('#ledit').onchange=e=>{S.ed=e.target.checked;vList(p,sn0)};
+ $('#ledit').onchange=e=>{S.ed=e.target.checked;vList(p,sn0)};$('#limp').onclick=()=>importDlg(p);
  const lt=$('#lt');
  const commit=(el,txt)=>{const tr=el.closest('tr');if(!tr)return;const row=rows[+tr.dataset.i];if(!row)return;const k=el.dataset.k,c=COLS.find(x=>x[0]===k),o=row._o,pr=PROP(k);
   const old=k==='buyer'?mb(o):o[pr];const q=parseEd(k,txt);
@@ -394,6 +403,82 @@ function vList(p,sn0){const sn=listSnap();if(!sn){p.innerHTML='<div class="warn"
   sn.lines.push(o);logEdit(sn,o,'행 추가','(없음)',o.ncr);Object.assign(f,{q:'',buyer:'',st:'',insp:'',age:'',sort:'no',dir:-1});vList(p,sn0);toast('맨 위에 새 행을 추가했습니다. 항목을 입력하세요')};
  $('#lcp').onclick=()=>{const d=$('#lcd').value;if(!d)return toast('복사할 새 기준일 날짜를 먼저 선택하세요');if(S.snaps.some(s=>s.asof===d))return toast('이미 있는 기준일입니다');
   const ns={id:d.replace(/-/g,''),asof:d,kind:'lines',lines:JSON.parse(JSON.stringify(sn.lines)),note:''};S.snaps.push(ns);S.cur=ns.id;S.edited=true;S.ed=true;S.tab='list';toast(`${sn.asof} 목록을 ${d} 기준일로 복사했습니다. 고치면 대시보드·출력용에 바로 반영됩니다 (직전 기준일에 건별 목록이 있을 때만 신규·완료가 산출됩니다)`);render()}}
+
+/* ---- 엑셀 가져오기 (신규 추가 / 빈칸 채우기) ---- */
+const TF=[['ncr','NCR No.'],['dt','발행일'],['sup','협력사'],['po','PO No'],['pn','Huneed PN'],['mpn','MPN'],['desc','Description'],['qty','수량(불량수량)'],['lot','Lot 크기'],['usd','금액(USD)'],['det','NCR 내용'],['ret','반송일'],['resp','협력사 회신'],['biz','사업구분'],['buyer','담당(현재)'],['insp','검사유형'],['st','처리상태']];
+const ALIAS={'부적합번호':'ncr','ncrno.':'ncr','ncrno':'ncr','품번(stn)':'pn','stn':'pn','huneedpn':'pn','품번(mpn)':'mpn','mpn':'mpn','검사유형(l2)':'insp','검사유형':'insp','품명':'desc','description':'desc','lot크기':'lot','불량수량':'qty','qty':'qty','공급업체':'sup','supplier':'sup','pono':'po','po':'po','부적합내용(qa)작성일자':'dt','ncrissuedate':'dt','사업구분':'biz','ncrdetails':'det','returneddatetosup':'ret',"supplier'sresponse":'resp','amount(usd)':'usd','처리상태':'st','buyer':'buyer'};
+const nrm=s=>String(s==null?'':s).replace(/\s+/g,'').toLowerCase();
+async function readSheetsFill(buf){const get=await unzip(buf);
+ const wb=xml(await get('xl/workbook.xml')),rel=xml(await get('xl/_rels/workbook.xml.rels'));
+ const ss=[];const sx=await get('xl/sharedStrings.xml');if(sx)[...xml(sx).getElementsByTagName('si')].forEach(si=>{ss.push([...si.getElementsByTagName('t')].filter(t=>t.parentNode.nodeName!=='rPh').map(t=>t.textContent).join(''))});
+ const ylw=new Set();const stx=await get('xl/styles.xml');if(stx){const d=xml(stx);const fills=[...d.getElementsByTagName('fills')[0].getElementsByTagName('fill')].map(f=>{const c=f.getElementsByTagName('fgColor')[0];return !!c&&/^(FF)?FFFF00$/i.test(c.getAttribute('rgb')||'')});
+  const xf=d.getElementsByTagName('cellXfs')[0];[...xf.getElementsByTagName('xf')].forEach((x,i)=>{if(fills[+x.getAttribute('fillId')])ylw.add(i)})}
+ const rid={};[...rel.getElementsByTagName('Relationship')].forEach(r=>rid[r.getAttribute('Id')]=r.getAttribute('Target'));const out=[];
+ for(const sh of [...wb.getElementsByTagName('sheet')]){let t=rid[sh.getAttribute('r:id')];if(!t)continue;t=t.replace(/^\/?(xl\/)?/,'xl/');const sd=await get(t);if(!sd)continue;
+  const rows=[],yl=[];[...xml(sd).getElementsByTagName('row')].forEach(r=>{const rn=(+r.getAttribute('r')||rows.length+1)-1,o=[],y=[];[...r.getElementsByTagName('c')].forEach(c=>{const ty=c.getAttribute('t'),v=c.getElementsByTagName('v')[0];let val=null;
+   if(ty==='s'&&v)val=ss[+v.textContent];else if(ty==='inlineStr')val=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');else if(v){val=ty==='str'||ty==='e'?v.textContent:(ty==='b'?v.textContent==='1':+v.textContent)}
+   const ci=colIdx(c.getAttribute('r'));o[ci]=val;if(ylw.has(+c.getAttribute('s')))y[ci]=true});rows[rn]=o;yl[rn]=y});
+  out.push({name:sh.getAttribute('name'),rows:[...rows].map(r=>r||[]),yl:[...yl].map(r=>r||[])})}
+ return out}
+function convVal(k,v){if(v==null||v==='')return '';
+ if(k==='dt'||k==='ret')return serialDate(v)||(typeof v==='string'?v.trim().slice(0,10):'');
+ if(k==='qty'||k==='lot'||k==='usd'){const x=+String(v).replace(/[,$]/g,'');return isNaN(x)?'':x}
+ let s=String(v).trim();if(k==='insp'&&s==='부품')s='수검';return s}
+const blank=v=>v==null||v===''||v===0;
+function importPlan(sn,I){const rows=I.sh.rows.slice(I.hr+1),kc=I.map.findIndex(m=>m===I.key);if(kc<0)return null;
+ const idx=new Map();sn.lines.forEach(l=>{const kv=nrm(l[I.key]);if(kv)(idx.get(kv)||idx.set(kv,[]).get(kv)).push(l)});
+ const adds=[],upd=[],seen=new Set();let nMatch=0,nKeyBlank=0,nDup=0;
+ for(const r of rows){const o={};I.map.forEach((k,ci)=>{if(k)o[k]=convVal(k,r[ci])});const kv=nrm(o[I.key]);if(!kv){if(r.some(x=>x!=null&&x!==''))nKeyBlank++;continue}
+  const ms=idx.get(kv);
+  if(!ms){if(!I.addNew)continue;if(seen.has(kv)){nDup++;continue}seen.add(kv);adds.push(o)}
+  else{nMatch++;if(I.fill||I.over)ms.forEach(l=>{Object.keys(o).forEach(k=>{if(k===I.key||o[k]==='')return;const old=k==='buyer'?l.bo:l[k];if(I.over?String(old)!==String(o[k]):blank(old))upd.push({l,k,old,nv:o[k]})})})}}
+ return{adds,upd,nMatch,nKeyBlank,nDup,total:rows.filter(r=>nrm(r[kc])).length}}
+function importRun(sn,I,pl){const mx0=Math.max(0,...sn.lines.map(l=>+l.no||0));let n=mx0;
+ pl.adds.forEach(o=>{const l={no:++n,ncr:'',dt:'',sup:'',po:'',pn:'',mpn:'',desc:'',qty:0,lot:'',cur:'USD',usd:0,det:'',ret:'',resp:'',biz:'',buyer:'',insp:'',st:'신규',bfm:false};
+  Object.keys(o).forEach(k=>{if(o[k]==='')return;if(k==='buyer')l.bo=o[k];else if(k!=='st'||o[k])l[k]=o[k]});if(!o.st)l.st='신규';sn.lines.push(l);logEdit(sn,l,'행 추가 (엑셀 가져오기)','(없음)',l.ncr)});
+ pl.upd.forEach(u=>{const pr=PROP(u.k);u.l[pr]=u.nv;logEdit(sn,u.l,TF.find(t=>t[0]===u.k)[1]+' (엑셀 가져오기)',u.old,u.nv)});}
+function importDlg(p){
+ let bg=$('#impbg');if(bg)bg.remove();bg=document.createElement('div');bg.id='impbg';bg.className='noprint';
+ bg.innerHTML=`<div class="impd" role="dialog" aria-modal="true"><div class="imph"><b>엑셀 가져오기</b><button class="btn" id="impx">닫기</button></div><div class="impb" id="impb"></div></div>`;document.body.appendChild(bg);
+ $('#impx').onclick=()=>bg.remove();bg.onclick=e=>{if(e.target===bg)bg.remove()};
+ const B=$('#impb');let I=null;
+ B.innerHTML=`<p class="note">부적합 목록에 가져올 엑셀(.xlsx)을 고르세요. <b>노란색으로 칠한 열</b>이 자동으로 선택되고, 열마다 어떤 항목으로 옮길지 직접 바꿀 수 있습니다. 같은 방식으로 OP list 등 다른 엑셀에서 필요한 정보만 끌어올 수도 있습니다.</p><input type="file" id="impf" accept=".xlsx"><span class="note" id="impm"></span>`;
+ $('#impf').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#impm').textContent='읽는 중…';
+  try{const shs=(await readSheetsFill(await f.arrayBuffer())).filter(s=>s.rows.length);if(!shs.length)throw new Error('데이터가 있는 시트가 없습니다');
+   const dm=f.name.match(/(\d{4})[.\-_](\d{2})[.\-_](\d{2})/);I={fname:f.name,shs,si:0,hr:0,map:[],key:'ncr',addNew:true,fill:false,over:false,copy:false,cdate:dm?`${dm[1]}-${dm[2]}-${dm[3]}`:''};setSheet(0);draw()}
+  catch(err){$('#impm').textContent='읽지 못했습니다: '+err.message}};
+ function setSheet(i){I.si=i;I.sh=I.shs[i];const R=I.sh.rows;let best=0,bi=0;R.slice(0,10).forEach((r,ri)=>{const c=r.filter(x=>typeof x==='string'&&x.trim()).length;if(c>best){best=c;bi=ri}});I.hr=bi;autoMap()}
+ function autoMap(){const H=I.sh.rows[I.hr]||[],Y=(I.sh.yl[I.hr]||[]);const anyY=Y.some(Boolean);I.map=[];I.anyY=anyY;
+  H.forEach((h,ci)=>{const k=ALIAS[nrm(h)];I.map[ci]=(k&&(!anyY||Y[ci])&&!I.map.includes(k))?k:''});for(let i=0;i<H.length;i++)if(I.map[i]==null)I.map[i]=''}
+ function sn(){return listSnap()}
+ function draw(){const R=I.sh.rows,H=R[I.hr]||[],Y=I.sh.yl[I.hr]||[],S0=sn();const nc=Math.max(H.length,...R.slice(I.hr,I.hr+6).map(r=>r.length));
+  const data=R.slice(I.hr+1).filter(r=>r.some(x=>x!=null&&x!==''));
+  B.innerHTML=`<div class="orow"><b>파일</b><span>${esc(I.fname)}</span>${I.shs.length>1?`<select id="isn">${I.shs.map((s,i)=>`<option value="${i}" ${i===I.si?'selected':''}>${esc(s.name)}</option>`).join('')}</select>`:''}<b>머리글 행</b><input type="number" id="ihr" min="1" value="${I.hr+1}" style="width:60px"><span class="note">데이터 ${n0(data.length)}행 · ${I.anyY?'노란색 열 자동 선택':'노란색 열 없음 — 이름이 같은 열을 자동 선택'}</span></div>
+  <div class="tw" style="max-height:290px;min-height:0;margin:10px 0"><table class="tb"><thead><tr><th>가져오기</th><th>엑셀 열 제목</th><th>옮길 항목</th><th>예시 값</th></tr></thead><tbody>${Array.from({length:nc},(_,ci)=>ci).filter(ci=>H[ci]!=null&&String(H[ci]).trim()!=='').map(ci=>{const ex=data.slice(0,3).map(r=>r[ci]).filter(x=>x!=null&&x!=='').map(x=>String(x).slice(0,24)).join(' · ');
+   return `<tr${Y[ci]?' style="background:#FFF9C4"':''}><td class="c"><input type="checkbox" data-uc="${ci}" ${I.map[ci]?'checked':''}></td><td>${esc(H[ci])}${Y[ci]?' <span class="chip soon">노란색</span>':''}</td><td><select data-mc="${ci}">${'<option value="">(가져오지 않음)</option>'+TF.map(t=>`<option value="${t[0]}" ${I.map[ci]===t[0]?'selected':''}>${t[1]}</option>`).join('')}</select></td><td class="note">${esc(ex)}</td></tr>`}).join('')}</tbody></table></div>
+  <div class="orow"><b>기준(키) 항목</b><select id="ikey">${TF.map(t=>`<option value="${t[0]}" ${I.key===t[0]?'selected':''}>${t[1]}</option>`).join('')}</select><span class="note">이 항목이 같으면 같은 건으로 봅니다 (NCR 번호, OP list는 PO No 등)</span></div>
+  <div class="orow"><label class="cc"><input type="checkbox" id="iadd" ${I.addNew?'checked':''}> 목록에 없는 건은 신규 추가 (처리상태 "신규")</label><label class="cc"><input type="checkbox" id="ifill" ${I.fill?'checked':''}> 기존 건의 빈 칸만 채우기</label><label class="cc"><input type="checkbox" id="iover" ${I.over?'checked':''}> 기존 건 값 덮어쓰기</label></div>
+  <div class="orow"><label class="cc"><input type="checkbox" id="icp" ${I.copy?'checked':''}> 새 기준일로 복사해서 반영</label><input type="date" id="icd" value="${esc(I.cdate)}"><span class="note">끄면 현재 목록(${S0.asof})에 바로 반영합니다. 선택하지 않은 항목은 빈 칸으로 둡니다.</span></div>
+  <div id="ipv"></div><div class="orow" style="justify-content:flex-end"><button class="btn pri" id="irun">가져오기 실행</button></div>`;
+  const pv=()=>{if(!I.map.includes(I.key)){$('#ipv').innerHTML=`<div class="warn">ⓘ 기준(키) 항목 "${TF.find(t=>t[0]===I.key)[1]}"에 해당하는 열을 위 표에서 선택하세요.</div>`;return null}
+   const tgt=I.copy?{lines:JSON.parse(JSON.stringify(S0.lines)),asof:I.cdate||'(날짜 선택)'}:S0;const pl=importPlan(tgt,I);if(!pl)return null;
+   const ks=[...new Set(I.map.filter(Boolean))];
+   $('#ipv').innerHTML=`<div class="kp" style="margin:8px 0"><div class="kc ok"><span class="l">신규로 추가</span><span class="n">${n0(pl.adds.length)}<small>건</small></span></div><div class="kc info"><span class="l">기존 목록과 일치</span><span class="n">${n0(pl.nMatch)}<small>건</small></span><span class="s">채움/수정 ${n0(pl.upd.length)}칸</span></div><div class="kc soon"><span class="l">제외</span><span class="n">${n0(pl.nKeyBlank+pl.nDup)}<small>건</small></span><span class="s">키 없음 ${pl.nKeyBlank} · 파일 내 중복 ${pl.nDup}</span></div></div>
+   ${pl.adds.length?`<div class="tw" style="max-height:180px;min-height:0"><table class="tb"><thead><tr>${ks.map(k=>`<th>${TF.find(t=>t[0]===k)[1]}</th>`).join('')}<th>처리상태</th></tr></thead><tbody>${pl.adds.slice(0,8).map(o=>`<tr>${ks.map(k=>`<td>${esc(String(o[k]==null?'':o[k]).slice(0,28))}</td>`).join('')}<td><span class="chip ok">신규</span></td></tr>`).join('')}</tbody></table></div><p class="note">신규 추가 미리보기 (앞 8건)${pl.adds.length>8?' · 나머지 '+(pl.adds.length-8)+'건':''}</p>`:'<p class="note">신규로 추가할 건이 없습니다.</p>'}`;return pl};
+  pv();
+  $('#isn')&&($('#isn').onchange=e=>{setSheet(+e.target.value);draw()});
+  $('#ihr').onchange=e=>{I.hr=Math.max(0,(+e.target.value||1)-1);autoMap();draw()};
+  $$('[data-uc]',B).forEach(c=>c.onchange=()=>{const ci=+c.dataset.uc;if(!c.checked)I.map[ci]='';else{const k=ALIAS[nrm(H[ci])]||'';I.map[ci]=k&&!I.map.includes(k)?k:''}draw()});
+  $$('[data-mc]',B).forEach(s=>s.onchange=()=>{const ci=+s.dataset.mc;I.map=I.map.map((x,i)=>i!==ci&&x&&x===s.value?'':x);I.map[ci]=s.value;draw()});
+  $('#ikey').onchange=e=>{I.key=e.target.value;draw()};
+  $('#iadd').onchange=e=>{I.addNew=e.target.checked;draw()};
+  $('#ifill').onchange=e=>{I.fill=e.target.checked;if(I.fill){I.over=false}draw()};
+  $('#iover').onchange=e=>{I.over=e.target.checked;if(I.over){I.fill=false}draw()};
+  $('#icp').onchange=e=>{I.copy=e.target.checked;draw()};$('#icd').onchange=e=>{I.cdate=e.target.value;draw()};
+  $('#irun').onclick=()=>{const pl=pv();if(!pl)return;if(!pl.adds.length&&!pl.upd.length)return toast('반영할 내용이 없습니다');
+   let tgt=S0;if(I.copy){if(!I.cdate)return toast('새 기준일 날짜를 선택하세요');if(S.snaps.some(s=>s.asof===I.cdate))return toast('이미 있는 기준일입니다');tgt={id:I.cdate.replace(/-/g,''),asof:I.cdate,kind:'lines',lines:JSON.parse(JSON.stringify(S0.lines)),note:''};}
+   const pl2=importPlan(tgt,I);importRun(tgt,I,pl2);if(I.copy){S.snaps.push(tgt);S.cur=tgt.id}
+   S.lf={...S.lf,q:'',buyer:'',st:pl2.adds.length?'신규':'',insp:'',age:'',sort:'no',dir:-1};S.tab='list';S.edited=true;bg.remove();toast(`신규 ${pl2.adds.length}건 추가 · ${pl2.upd.length}칸 채움 (${tgt.asof})`);render()}}}
 
 /* ---- 담당자별 업데이트 현황 (변경 이력) ---- */
 const ckst={d:7,who:'',date:''};
@@ -444,7 +529,7 @@ function vOut(p,sn){const r=S.rp;const flt=sn.kind==='summary'&&r.buyer;
  const chk=(attr,key,lab,on)=>`<label class="cc"><input type="checkbox" ${attr}="${key}" ${on?'checked':''}> ${lab}</label>`;
  p.innerHTML=`<div class="opbar noprint">
  <div class="orow"><b>포함 내용</b>${Object.keys(SECN).map(k=>chk('data-sec',k,SECN[k]+(k==='ls'?` (${n0(repLines().length)}건)`:''),r.sec[k])).join('')}</div>
- <div class="orow"><b>목록 판정</b>${['진행중','RTV'].map(k=>chk('data-st',k,k,r.st[k])).join('')}<span class="note">|</span>${[['수검','수입 검사'],['검판서','검사 판정']].map(k=>chk('data-in',k[0],k[1],r.insp[k[0]])).join('')}<span class="note">|</span>${BK.map((b,i)=>chk('data-age',i,b,r.age[i])).join('')}</div>
+ <div class="orow"><b>목록 판정</b>${['신규','진행중','RTV'].map(k=>chk('data-st',k,k,r.st[k])).join('')}<span class="note">|</span>${[['수검','수입 검사'],['검판서','검사 판정']].map(k=>chk('data-in',k[0],k[1],r.insp[k[0]])).join('')}<span class="note">|</span>${BK.map((b,i)=>chk('data-age',i,b,r.age[i])).join('')}</div>
  <div class="orow"><b>담당자</b><select id="rb">${buyerOpts(r.buyer)}</select><b>용지</b><span class="note">A4 가로</span>${flt?'<span class="note">요약 데이터는 담당자별 현황·RTV·공급업체 표만 필터됩니다.</span>':''}
   <span class="oact"><button class="btn pri" id="bx">엑셀 저장</button><button class="btn pri" id="bp">PDF 저장</button><button class="btn" id="bpr">인쇄</button></span></div>
  <details class="oc"><summary>목록 열 선택 (${COLS.filter(c=>r.cols[c[0]]).length}/${COLS.length}개)</summary><div class="ocl">${COLS.map(c=>chk('data-col',c[0],c[1],r.cols[c[0]])).join('')}</div></details>
